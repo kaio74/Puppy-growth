@@ -1,0 +1,396 @@
+{
+  "schemaVersion": 1,
+  "name": "Puppy Growth Project",
+  "updatedAt": "2026-11-25T10:54:43.336Z",
+  "settings": {
+    "showTypicalRange": true,
+    "showProjections": true,
+    "projectionModel": "gompertz",
+    "showConfidenceBand": false,
+    "showVelocityChart": false
+  },
+  "typicalRange": {
+    "label": "Typical Height Range",
+    "ageWeeks": [
+      4,
+      8,
+      12,
+      16,
+      20,
+      24,
+      28,
+      32,
+      36,
+      48,
+      52
+    ],
+    "lowerLimit": [
+      8,
+      13,
+      18,
+      23,
+      27,
+      28,
+      30,
+      30,
+      30,
+      30,
+      30
+    ],
+    "upperLimit": [
+      12,
+      18,
+      23,
+      28,
+      32,
+      33,
+      34,
+      35,
+      35.5,
+      36,
+      36
+    ]
+  },
+  "puppies": [
+    {
+      "id": "pup_1eb1a5e8",
+      "name": "Aliss",
+      "color": "#dc143c",
+      "visible": true,
+      "measurements": [
+        {
+          "id": "m_346e0ae0",
+          "week": 7,
+          "height": 21,
+          "note": ""
+        },
+        {
+          "id": "m_885a59c0",
+          "week": 9,
+          "height": 22.5,
+          "note": ""
+        },
+        {
+          "id": "m_ca678632",
+          "week": 11,
+          "height": 26,
+          "note": ""
+        },
+        {
+          "id": "m_a24ec294",
+          "week": 12,
+          "height": 26,
+          "note": ""
+        },
+        {
+          "id": "m_9886cc52",
+          "week": 13,
+          "height": 26.5,
+          "note": ""
+        },
+        {
+          "id": "m_bbedf041",
+          "week": 14,
+          "height": 27.5,
+          "note": ""
+        },
+        {
+          "id": "m_3aea8369",
+          "week": 15,
+          "height": 28.25,
+          "note": ""
+        },
+        {
+          "id": "m_c136c0a0",
+          "week": 16,
+          "height": 29,
+          "note": ""
+        },
+        {
+          "id": "m_5d718f25",
+          "week": 17,
+          "height": 29.5,
+          "note": ""
+        },
+        {
+          "id": "m_69b1dd6f",
+          "week": 18,
+          "height": 29.75,
+          "note": ""
+        },
+        {
+          "id": "m_738cf9c5",
+          "week": 19,
+          "height": 30.25,
+          "note": ""
+        },
+        {
+          "id": "m_98d4c66f",
+          "week": 20,
+          "height": 31,
+          "note": ""
+        },
+        {
+          "id": "m_cf56da5b",
+          "week": 21,
+          "height": 31,
+          "note": ""
+        },
+        {
+          "id": "m_607549a1",
+          "week": 22,
+          "height": 31.5,
+          "note": ""
+        },
+        {
+          "id": "m_5b588094",
+          "week": 23,
+          "height": 32,
+          "note": ""
+        },
+        {
+          "id": "m_eb219538",
+          "week": 24,
+          "height": 32.5,
+          "note": ""
+        },
+        {
+          "id": "m_2c5f88f9",
+          "week": 25,
+          "height": 33,
+          "note": ""
+        },
+        {
+          "id": "m_15fd7788",
+          "week": 26,
+          "height": 33,
+          "note": ""
+        },
+        {
+          "id": "m_c4fad9bb",
+          "week": 27,
+          "height": 33,
+          "note": ""
+        },
+        {
+          "id": "m_f4abef0b",
+          "week": 28,
+          "height": 33,
+          "note": ""
+        },
+        {
+          "id": "m_f9862152",
+          "week": 29,
+          "height": 34,
+          "note": ""
+        },
+        {
+          "id": "m_a60eb9ca",
+          "week": 30,
+          "height": 34,
+          "note": ""
+        },
+        {
+          "id": "m_92b46312",
+          "week": 31,
+          "height": 34,
+          "note": ""
+        },
+        {
+          "id": "m_28e939a4",
+          "week": 32,
+          "height": 34,
+          "note": ""
+        },
+        {
+          "id": "m_e83fe7bf",
+          "week": 33,
+          "height": 34,
+          "note": ""
+        },
+        {
+          "id": "m_6d101c18",
+          "week": 34,
+          "height": 34,
+          "note": ""
+        },
+        {
+          "id": "m_6c99283d",
+          "week": 35,
+          "height": 34.5,
+          "note": ""
+        },
+        {
+          "id": "m_c427f82b",
+          "week": 36,
+          "height": 34.5,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": "pup_bab70b89",
+      "name": "Lilly",
+      "color": "#4169e1",
+      "visible": true,
+      "measurements": [
+        {
+          "id": "m_42a8d917",
+          "week": 8,
+          "height": 21,
+          "note": ""
+        },
+        {
+          "id": "m_469fea56",
+          "week": 11,
+          "height": 24,
+          "note": ""
+        },
+        {
+          "id": "m_6cdadc9d",
+          "week": 12,
+          "height": 24.5,
+          "note": ""
+        },
+        {
+          "id": "m_9cef3ce9",
+          "week": 14,
+          "height": 25,
+          "note": ""
+        },
+        {
+          "id": "m_bdd6d1ae",
+          "week": 15,
+          "height": 26.5,
+          "note": ""
+        },
+        {
+          "id": "m_142227a9",
+          "week": 16,
+          "height": 27,
+          "note": ""
+        },
+        {
+          "id": "m_72c985a0",
+          "week": 17,
+          "height": 28,
+          "note": ""
+        },
+        {
+          "id": "m_46858a46",
+          "week": 18,
+          "height": 28.5,
+          "note": ""
+        },
+        {
+          "id": "m_efdd5d8f",
+          "week": 19,
+          "height": 29.5,
+          "note": ""
+        },
+        {
+          "id": "m_20d18c47",
+          "week": 20,
+          "height": 29.7,
+          "note": ""
+        },
+        {
+          "id": "m_36d5b2fc",
+          "week": 21,
+          "height": 29.7,
+          "note": ""
+        },
+        {
+          "id": "m_df4e8ae1",
+          "week": 22,
+          "height": 30.25,
+          "note": ""
+        },
+        {
+          "id": "m_b5fbc3e3",
+          "week": 23,
+          "height": 31,
+          "note": ""
+        },
+        {
+          "id": "m_392652f0",
+          "week": 24,
+          "height": 31.5,
+          "note": ""
+        },
+        {
+          "id": "m_557374f7",
+          "week": 25,
+          "height": 31.5,
+          "note": ""
+        },
+        {
+          "id": "m_c602d92b",
+          "week": 26,
+          "height": 31.75,
+          "note": ""
+        },
+        {
+          "id": "m_4319b248",
+          "week": 27,
+          "height": 32,
+          "note": ""
+        },
+        {
+          "id": "m_fdfc774a",
+          "week": 28,
+          "height": 32,
+          "note": ""
+        },
+        {
+          "id": "m_7817e4d6",
+          "week": 29,
+          "height": 32.5,
+          "note": ""
+        },
+        {
+          "id": "m_76ab20a1",
+          "week": 30,
+          "height": 32.5,
+          "note": ""
+        },
+        {
+          "id": "m_a6b7ecc6",
+          "week": 31,
+          "height": 32.5,
+          "note": ""
+        },
+        {
+          "id": "m_ce8f479d",
+          "week": 32,
+          "height": 32.5,
+          "note": ""
+        },
+        {
+          "id": "m_b6aa29ad",
+          "week": 33,
+          "height": 32.5,
+          "note": ""
+        },
+        {
+          "id": "m_83b065c7",
+          "week": 34,
+          "height": 32.5,
+          "note": ""
+        },
+        {
+          "id": "m_3a6cd1f2",
+          "week": 35,
+          "height": 32.75,
+          "note": ""
+        },
+        {
+          "id": "m_e2997453",
+          "week": 36,
+          "height": 32.75,
+          "note": ""
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+.DS_Store
+*.log
+
+# Legacy Python scripts and standalone ~4.8 MB chart exports (kept locally)
+final_puppy_chart.html
+multi_puppy_growth_chart.html
+multi_puppy_chart.py
+puppy_chart_updater.py

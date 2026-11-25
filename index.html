@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive puppy height growth tracker with Gompertz, Brody, Logistic, Richards, and Percentile Track projections, 95% confidence bands, and local project save/reopen.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E">
+  <title>Puppy Growth Chart Studio</title>
+  <link rel="stylesheet" href="app/styles.css">
+  <script defer src="app/vendor/plotly.min.js"></script>
+  <script defer src="app/gompertz.js"></script>
+  <script defer src="app/projections.js"></script>
+  <script defer src="app/storage.js"></script>
+  <script defer src="app/ui-helpers.js"></script>
+  <script defer src="app/app.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand-group">
+      <span class="brand-badge">🐾 Puppy Growth Studio</span>
+      <input
+        id="project-name-input"
+        class="project-title-input"
+        type="text"
+        maxlength="80"
+        aria-label="Project name"
+        value="Puppy Growth Project"
+      >
+      <span id="status-pill" class="status-pill" data-dirty="false">Saved</span>
+    </div>
+
+    <div class="header-actions">
+      <button id="btn-undo" type="button" class="btn btn-subtle" disabled title="Undo last edit (Ctrl/Cmd+Z)">Undo</button>
+      <button id="btn-new" type="button" class="btn">New</button>
+      <button id="btn-open" type="button" class="btn">Open…</button>
+      <button id="btn-save" type="button" class="btn btn-primary" title="Save project (Ctrl/Cmd+S)">Save</button>
+      <button id="btn-save-as" type="button" class="btn">Save As…</button>
+      <button id="btn-range" type="button" class="btn">Range</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="chart-column" aria-label="Growth chart and summary">
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Growth Chart &amp; Gompertz Projection</h2>
+          <div class="chart-controls">
+            <label class="select-control">
+              <span>Model</span>
+              <select id="projection-model-select" aria-label="Projection model">
+                <option value="gompertz">Gompertz (Default)</option>
+                <option value="brody">Brody (Monomolecular)</option>
+                <option value="logistic">Logistic</option>
+                <option value="richards">Richards (4-param)</option>
+                <option value="percentile">Percentile Track (1+ pts)</option>
+                <option value="compare">Compare All Models</option>
+              </select>
+            </label>
+            <label class="toggle-label">
+              <input id="toggle-typical-range" type="checkbox" checked>
+              Show Typical Range
+            </label>
+            <label class="toggle-label">
+              <input id="toggle-projections" type="checkbox" checked>
+              Show Projections
+            </label>
+            <label class="toggle-label">
+              <input id="toggle-confidence-band" type="checkbox">
+              95% CI Band
+            </label>
+            <label class="toggle-label">
+              <input id="toggle-velocity-chart" type="checkbox">
+              Growth Velocity
+            </label>
+            <button id="btn-export-csv" type="button" class="btn btn-sm">Export CSV</button>
+            <button id="btn-reset-starter" type="button" class="btn btn-sm btn-subtle">Reset Starter Data</button>
+          </div>
+        </div>
+        <div id="growth-chart" class="chart-canvas" aria-label="Puppy growth chart"></div>
+      </div>
+
+      <div id="velocity-panel" class="panel" hidden>
+        <div class="panel-header">
+          <h2 class="panel-title">Growth Velocity (cm / week)</h2>
+        </div>
+        <div id="velocity-chart" class="chart-canvas chart-canvas--velocity" aria-label="Puppy growth velocity chart"></div>
+      </div>
+
+      <section aria-label="Puppy summary cards">
+        <div id="summary-grid" class="summary-grid"></div>
+      </section>
+    </section>
+
+    <aside class="side-column" aria-label="Puppies and measurements">
+      <section class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Puppies</h2>
+          <div class="panel-actions">
+            <button id="btn-add-puppy" type="button" class="btn btn-sm btn-primary">+ Add Puppy</button>
+            <button id="btn-edit-puppy" type="button" class="btn btn-sm" disabled>Edit</button>
+          </div>
+        </div>
+        <div id="puppy-pills" class="puppy-pills" role="group" aria-label="Select puppy"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Add Measurement</h2>
+        </div>
+        <form id="add-measurement-form" class="measurement-form" novalidate>
+          <div class="field field--full">
+            <label for="m-puppy">Puppy</label>
+            <span id="m-puppy-hint" class="hint">Choose which puppy this measurement belongs to.</span>
+            <select
+              id="m-puppy"
+              name="puppyId"
+              required
+              aria-describedby="m-puppy-hint"
+              data-error="m-puppy-error"
+            ></select>
+            <div id="m-puppy-error" class="error-msg">
+              <span role="img" aria-label="Error">⚠</span> Please select or add a puppy first.
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="m-week">Age (Weeks)</label>
+            <span id="m-week-hint" class="hint">0 to 104 weeks</span>
+            <input
+              id="m-week"
+              name="week"
+              type="number"
+              min="0"
+              max="104"
+              step="0.1"
+              required
+              placeholder="e.g. 37"
+              aria-describedby="m-week-hint"
+              data-error="m-week-error"
+            >
+            <div id="m-week-error" class="error-msg">
+              <span role="img" aria-label="Error">⚠</span> Enter an age between 0 and 104 weeks.
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="m-height">Height (cm)</label>
+            <span id="m-height-hint" class="hint">1 to 150 cm</span>
+            <input
+              id="m-height"
+              name="height"
+              type="number"
+              min="1"
+              max="150"
+              step="0.05"
+              required
+              placeholder="e.g. 35.0"
+              aria-describedby="m-height-hint"
+              data-error="m-height-error"
+            >
+            <div id="m-height-error" class="error-msg">
+              <span role="img" aria-label="Error">⚠</span> Enter a height between 1 and 150 cm.
+            </div>
+          </div>
+
+          <div class="field field--full">
+            <label for="m-note">Note (optional)</label>
+            <span id="m-note-hint" class="hint">Up to 80 characters (e.g. vet check)</span>
+            <input
+              id="m-note"
+              name="note"
+              type="text"
+              maxlength="80"
+              placeholder="Optional note"
+              aria-describedby="m-note-hint"
+              data-error="m-note-error"
+            >
+            <div id="m-note-error" class="error-msg">
+              <span role="img" aria-label="Error">⚠</span> Note must be 80 characters or fewer.
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button id="btn-submit-measurement" type="submit" class="btn btn-primary">Add Measurement</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div
+          id="measurements-table-region"
+          tabindex="0"
+          role="region"
+          aria-labelledby="measurements-table-caption"
+          class="table-wrapper"
+        >
+          <table>
+            <caption id="measurements-table-caption">Measurements</caption>
+            <thead>
+              <tr>
+                <th scope="col">Week</th>
+                <th scope="col">Height</th>
+                <th scope="col">Change</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="measurements-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <input id="file-open-input" type="file" accept=".json,.puppyproj.json,application/json" hidden>
+  <div id="drop-overlay" class="drop-overlay" hidden>Drop .puppyproj.json or .json file to open project</div>
+
+  <!-- Puppy Add/Edit Modal -->
+  <dialog id="puppy-dialog" closedby="any" aria-labelledby="puppy-dialog-title">
+    <div class="dialog-header">
+      <h1 id="puppy-dialog-title">Add Puppy</h1>
+      <button type="button" class="btn btn-sm btn-subtle" command="close" commandfor="puppy-dialog" data-close-dialog="puppy-dialog" aria-label="Close dialog">✕</button>
+    </div>
+    <form id="puppy-dialog-form" novalidate>
+      <div class="dialog-body">
+        <div class="field">
+          <label for="puppy-name-input">Puppy Name</label>
+          <span id="puppy-name-hint" class="hint">1 to 40 characters</span>
+          <input
+            id="puppy-name-input"
+            type="text"
+            required
+            maxlength="40"
+            autofocus
+            aria-describedby="puppy-name-hint"
+            data-error="puppy-name-error"
+          >
+          <div id="puppy-name-error" class="error-msg">
+            <span role="img" aria-label="Error">⚠</span> Enter a puppy name (1 to 40 characters).
+          </div>
+        </div>
+
+        <div class="field" style="margin-top: 0.85rem;">
+          <label for="puppy-color-input">Line Color</label>
+          <span id="puppy-color-hint" class="hint">Pick a color or choose a preset swatch below.</span>
+          <input id="puppy-color-input" type="color" value="#dc143c" aria-describedby="puppy-color-hint" style="height: 40px; padding: 2px 4px;">
+          <div id="puppy-color-swatches" class="color-swatches" role="group" aria-label="Color presets"></div>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button type="button" class="btn" data-close-dialog="puppy-dialog">Cancel</button>
+        <button id="puppy-dialog-submit" type="submit" class="btn btn-primary">Save Puppy</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Measurement Edit Modal -->
+  <dialog id="measurement-dialog" closedby="any" aria-labelledby="measurement-dialog-title">
+    <div class="dialog-header">
+      <h1 id="measurement-dialog-title">Edit Measurement</h1>
+      <button type="button" class="btn btn-sm btn-subtle" data-close-dialog="measurement-dialog" aria-label="Close dialog">✕</button>
+    </div>
+    <form id="measurement-dialog-form" novalidate>
+      <div class="dialog-body">
+        <div class="measurement-form">
+          <div class="field">
+            <label for="edit-m-week">Age (Weeks)</label>
+            <span id="edit-m-week-hint" class="hint">0 to 104 weeks</span>
+            <input
+              id="edit-m-week"
+              type="number"
+              min="0"
+              max="104"
+              step="0.1"
+              required
+              autofocus
+              aria-describedby="edit-m-week-hint"
+              data-error="edit-m-week-error"
+            >
+            <div id="edit-m-week-error" class="error-msg">
+              <span role="img" aria-label="Error">⚠</span> Enter an age between 0 and 104 weeks.
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="edit-m-height">Height (cm)</label>
+            <span id="edit-m-height-hint" class="hint">1 to 150 cm</span>
+            <input
+              id="edit-m-height"
+              type="number"
+              min="1"
+              max="150"
+              step="0.05"
+              required
+              aria-describedby="edit-m-height-hint"
+              data-error="edit-m-height-error"
+            >
+            <div id="edit-m-height-error" class="error-msg">
+              <span role="img" aria-label="Error">⚠</span> Enter a height between 1 and 150 cm.
+            </div>
+          </div>
+
+          <div class="field field--full">
+            <label for="edit-m-note">Note (optional)</label>
+            <span id="edit-m-note-hint" class="hint">Up to 80 characters</span>
+            <input
+              id="edit-m-note"
+              type="text"
+              maxlength="80"
+              aria-describedby="edit-m-note-hint"
+              data-error="edit-m-note-error"
+            >
+            <div id="edit-m-note-error" class="error-msg">
+              <span role="img" aria-label="Error">⚠</span> Note must be 80 characters or fewer.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button type="button" class="btn" data-close-dialog="measurement-dialog">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Reference Typical Range Modal -->
+  <dialog id="reference-dialog" class="dialog--wide" closedby="any" aria-labelledby="reference-dialog-title">
+    <div class="dialog-header">
+      <h1 id="reference-dialog-title">Typical Height Range</h1>
+      <button type="button" class="btn btn-sm btn-subtle" data-close-dialog="reference-dialog" aria-label="Close dialog">✕</button>
+    </div>
+    <form id="reference-dialog-form" novalidate>
+      <div class="dialog-body">
+        <div class="field">
+          <label for="range-label-input">Band Label</label>
+          <span id="range-label-hint" class="hint">Shown in the chart legend</span>
+          <input
+            id="range-label-input"
+            type="text"
+            required
+            maxlength="60"
+            autofocus
+            aria-describedby="range-label-hint"
+            data-error="range-label-error"
+          >
+          <div id="range-label-error" class="error-msg">
+            <span role="img" aria-label="Error">⚠</span> Enter a label for the reference range.
+          </div>
+        </div>
+
+        <div class="range-grid" id="range-rows-container"></div>
+        <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button id="btn-add-range-row" type="button" class="btn btn-sm">+ Add Age Point</button>
+          <button id="btn-reset-range-default" type="button" class="btn btn-sm btn-subtle">Restore Default Range</button>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button type="button" class="btn" data-close-dialog="reference-dialog">Cancel</button>
+        <button type="submit" class="btn btn-primary">Apply Range</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Reusable Confirmation Modal -->
+  <dialog id="confirm-dialog" aria-labelledby="confirm-dialog-title">
+    <div class="dialog-header">
+      <h1 id="confirm-dialog-title">Confirm Action</h1>
+    </div>
+    <div class="dialog-body">
+      <p id="confirm-dialog-message" style="margin: 0;"></p>
+    </div>
+    <form method="dialog" class="dialog-footer">
+      <button id="confirm-cancel-btn" value="cancel" autofocus class="btn">Cancel</button>
+      <button id="confirm-ok-btn" value="confirm" class="btn btn-danger">Confirm</button>
+    </form>
+  </dialog>
+
+  <!-- Toast Region & Screen-Reader Live Fallback -->
+  <div id="toast-region" role="region" aria-label="Notifications" class="toast-region"></div>
+  <p class="visually-hidden">Screen reader announcements</p>
+  <div id="toast-live-region" class="visually-hidden" aria-live="polite"></div>
+</body>
+</html>
